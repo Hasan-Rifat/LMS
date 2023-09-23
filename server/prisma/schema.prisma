@@ -1,0 +1,254 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// users
+model User {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+
+  role          Role           @default(user)
+  isVerified    Boolean        @default(false) @map("is_verified")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  orders        Order[]
+  notifications Notification[]
+  questions     Question[]
+  avatar        avatar[]
+
+  @@map("user")
+}
+
+enum Role {
+  user
+  admin
+}
+
+model avatar {
+  id       String @id @default(uuid())
+  publicId String @map("public_id")
+  url      String
+  userId   String @map("user_id")
+  user     User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("avater")
+}
+
+// review
+model Review {
+  id       String @id @default(uuid())
+  userId   String @map("user_id")
+  rating   Int
+  courseId String @map("course_id")
+  course   Course @relation(fields: [courseId], references: [id])
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  comments  Comment[]
+
+  @@map("review")
+}
+
+model Comment {
+  id       String @id @default(uuid())
+  replay   String @map("user_id")
+  reviewId String @map("review_id")
+  review   Review @relation(fields: [reviewId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("comments")
+}
+
+model Course {
+  id            String  @id @default(uuid())
+  name          String
+  description   String
+  price         Int
+  estimatePrice Int     @map("estimate_price")
+  thumbnail     String
+  level         String
+  demoUrl       String  @map("demo_url")
+  isPublished   Boolean @default(false) @map("is_published")
+
+  courseRatings Int    @map("course_ratings")
+  purchase      Int
+  userId        String @map("user_id")
+
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  categories   Category[]
+  orders       Order[]
+  courseData   CourseData[]
+  reviews      Review[]
+  tags         Tags[]
+  benefit      Benefit[]
+  prerequisite Prerequisite[]
+
+  @@map("course")
+}
+
+model Tags {
+  id       String @id @default(uuid())
+  tag      String
+  courseId String @map("course_id")
+  course   Course @relation(fields: [courseId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("tag")
+}
+
+model Benefit {
+  id       String @id @default(uuid())
+  benefit  String
+  courseId String @map("course_id")
+  course   Course @relation(fields: [courseId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("benefit")
+}
+
+model Prerequisite {
+  id           String @id @default(uuid())
+  prerequisite String
+  courseId     String @map("course_id")
+  course       Course @relation(fields: [courseId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("prerequisite")
+}
+
+model CourseData {
+  id             String     @id @default(uuid())
+  videoUrl       String     @map("video_url")
+  videoThumbnail String     @map("video_thumbnail")
+  title          String
+  videoSection   Json       @map("video_section")
+  description    String
+  videoLength    String     @map("video_length")
+  videoPlayer    String     @map("video_player")
+  suggestion     String
+  courseId       String     @map("course_id")
+  course         Course     @relation(fields: [courseId], references: [id])
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+  links          Links[]
+  questions      Question[]
+
+  @@map("course_data")
+}
+
+model Links {
+  id           String     @id @default(uuid())
+  title        String
+  url          String
+  courseDataId String     @map("course_data_id")
+  courseData   CourseData @relation(fields: [courseDataId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("links")
+}
+
+model Question {
+  id String @id @default(uuid())
+
+  userId       String     @map("user_id")
+  user         User       @relation(fields: [userId], references: [id])
+  courseDataId String     @map("course_data_id")
+  courseData   CourseData @relation(fields: [courseDataId], references: [id])
+
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  questionItems QuestionItem[]
+
+  @@map("question")
+}
+
+model QuestionItem {
+  id         String   @id @default(uuid())
+  questions  String   @map("questions")
+  questionId String   @map("question_id")
+  question   Question @relation(fields: [questionId], references: [id])
+}
+
+model Notification {
+  id      String @id @default(uuid())
+  message String
+  userId  String @map("user_id")
+  user    User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notification")
+}
+
+model Order {
+  id       String @id @default(uuid())
+  courseId String @map("course_id")
+  course   Course @relation(fields: [courseId], references: [id])
+  userId   String @map("user_id")
+  user     User   @relation(fields: [userId], references: [id])
+
+  paymentInfo Json     @map("payment_info")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("order")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  title     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  courseId  String   @map("course_id")
+  course    Course   @relation(fields: [courseId], references: [id])
+
+  @@map("category")
+}
+
+// faq
+model Faq {
+  id String @id @default(uuid())
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  faqItems  FaqItem[]
+
+  @@map("faq")
+}
+
+model FaqItem {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String
+  faqId     String   @map("faq_id")
+  faq       Faq      @relation(fields: [faqId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("faq_item")
+}
