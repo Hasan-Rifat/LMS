@@ -24,7 +24,7 @@ model User {
   orders        Order[]
   notifications Notification[]
   questions     Question[]
-  avatar        avatar[]
+  avatar        Avatar?
 
   @@map("user")
 }
@@ -34,17 +34,12 @@ enum Role {
   admin
 }
 
-model avatar {
-  id       String @id @default(uuid())
-  publicId String @map("public_id")
-  url      String
-  userId   String @map("user_id")
-  user     User   @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("avater")
+model Avatar {
+  id        String @id @default(uuid())
+  public_id String @unique
+  url       String
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id])
 }
 
 // review

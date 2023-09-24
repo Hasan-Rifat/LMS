@@ -43,7 +43,11 @@ router.patch(
   validateRequest(UserValidation.update),
   UserControllers.updateOneInDB
 );
-router.delete("/:id", UserControllers.deleteByIdFromDB);
+router.delete(
+  "/:id",
+  auth(ENUM_USER_ROLE.ADMIN),
+  UserControllers.deleteByIdFromDB
+);
 
 /* 
 userRouter.post("/socialAuth",socialAuth)
