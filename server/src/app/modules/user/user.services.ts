@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 
 import config from "../../../config";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
-import { Secret } from "jsonwebtoken";
+import { JwtPayload, Secret } from "jsonwebtoken";
 import generateActivateToken from "../../../shared/generateActivateToken";
 // create users
 const registration = async (
@@ -172,6 +172,52 @@ const getProfile = async (id: string) => {
   return user;
 };
 
+const updatePassword = async (
+  data: JwtPayload,
+  payload: {
+    oldPassword: string;
+    newPassword: string;
+  }
+): Promise<{ message: string }> => {
+  // user exists
+  const user = await prisma.user.findUnique({
+    where: {
+      id: data.id,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  // password match
+  const isPasswordMatch = await bcrypt.compare(
+    payload.oldPassword,
+    user.password
+  );
+
+  if (!isPasswordMatch) {
+    throw new ApiError(httpStatus.FORBIDDEN, "Password not match");
+  }
+
+  // update password
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: data.id,
+    },
+    data: {
+      password: await bcrypt.hash(
+        payload.newPassword,
+        Number(config.bcrypt_salt_rounds)
+      ),
+    },
+  });
+
+  const message = "Password updated successfully";
+
+  return { message };
+};
+
 // get all users
 const getAllFromDB = async (): Promise<User[]> => {
   return prisma.user.findMany();
@@ -210,6 +256,7 @@ export const UserService = {
   refresh,
   registration,
   getProfile,
+  updatePassword,
   activateUser,
   getAllFromDB,
   getByIdFromDB,

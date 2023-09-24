@@ -112,6 +112,19 @@ const getProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updatePassword = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) throw new Error("User not found");
+
+  const result = await UserService.updatePassword(req.user, req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User password updated successfully",
+    data: result,
+  });
+});
+
 const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
   const result = await UserService.getAllFromDB();
 
@@ -161,6 +174,7 @@ export const UserControllers = {
   logOut,
   refresh,
   getProfile,
+  updatePassword,
   activateUser,
   registration,
   getAllFromDB,

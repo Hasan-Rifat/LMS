@@ -32,6 +32,12 @@ router.get(
 );
 router.post("/activate-user", UserControllers.activateUser);
 
+router.post(
+  "/update-password",
+  auth(ENUM_USER_ROLE.USER, ENUM_USER_ROLE.ADMIN),
+  UserControllers.updatePassword
+);
+
 router.get(
   "/:id",
   auth(ENUM_USER_ROLE.USER, ENUM_USER_ROLE.ADMIN),
@@ -48,12 +54,5 @@ router.delete(
   auth(ENUM_USER_ROLE.ADMIN),
   UserControllers.deleteByIdFromDB
 );
-
-/* 
-userRouter.post("/socialAuth",socialAuth)
-userRouter.put("/update-user-info",isAuthenticated,updateUserInfo)
-userRouter.put("/update-user-password",isAuthenticated,updatePassword)
-userRouter.put("/update-user-avatar",isAuthenticated,updateProfilePicture)
-*/
 
 export const UserRoutes = router;
