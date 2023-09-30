@@ -70,39 +70,45 @@ model Comment {
 }
 
 model Course {
-  id            String  @id @default(uuid())
+  id            String @id @default(uuid())
   name          String
   description   String
   price         Int
-  estimatePrice Int     @map("estimate_price")
-  thumbnail     String
+  estimatePrice Int    @map("estimate_price")
+
   level         String
-  demoUrl       String  @map("demo_url")
-  isPublished   Boolean @default(false) @map("is_published")
-
-  courseRatings Int    @map("course_ratings")
+  demoUrl       String         @map("demo_url")
+  isPublished   Boolean        @default(false) @map("is_published")
+  courseRatings Int            @map("course_ratings")
   purchase      Int
-  userId        String @map("user_id")
+  userId        String         @map("user_id")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  benefit       Benefit[]
+  prerequisite  Prerequisite[]
+  CourseData    CourseData?
 
-  createdAt    DateTime       @default(now()) @map("created_at")
-  updatedAt    DateTime       @updatedAt @map("updated_at")
-  categories   Category[]
-  orders       Order[]
-  courseData   CourseData[]
-  reviews      Review[]
-  tags         Tags[]
-  benefit      Benefit[]
-  prerequisite Prerequisite[]
+  reviews    Review[]
+  categories Category[]
+  tags       Tags[]
+  thumbnail  Thumbnail?
 
   @@map("course")
 }
 
-model Tags {
-  id       String @id @default(uuid())
-  tag      String
-  courseId String @map("course_id")
-  course   Course @relation(fields: [courseId], references: [id])
+model Thumbnail {
+  id        String  @id @default(uuid())
+  public_id String  @unique
+  url       String
+  courseId  String? @unique
+  course    Course? @relation(fields: [courseId], references: [id])
+}
 
+model Tags {
+  id        String   @id @default(uuid())
+  tag       String
+  courseId  String   @unique @map("course_id")
+  course    Course   @relation(fields: [courseId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -112,7 +118,7 @@ model Tags {
 model Benefit {
   id       String @id @default(uuid())
   benefit  String
-  courseId String @map("course_id")
+  courseId String @unique @map("course_id")
   course   Course @relation(fields: [courseId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -124,7 +130,7 @@ model Benefit {
 model Prerequisite {
   id           String @id @default(uuid())
   prerequisite String
-  courseId     String @map("course_id")
+  courseId     String @unique @map("course_id")
   course       Course @relation(fields: [courseId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -143,7 +149,7 @@ model CourseData {
   videoLength    String     @map("video_length")
   videoPlayer    String     @map("video_player")
   suggestion     String
-  courseId       String     @map("course_id")
+  courseId       String     @unique @map("course_id")
   course         Course     @relation(fields: [courseId], references: [id])
   createdAt      DateTime   @default(now()) @map("created_at")
   updatedAt      DateTime   @updatedAt @map("updated_at")
@@ -171,7 +177,7 @@ model Question {
 
   userId       String     @map("user_id")
   user         User       @relation(fields: [userId], references: [id])
-  courseDataId String     @map("course_data_id")
+  courseDataId String     @unique @map("course_data_id")
   courseData   CourseData @relation(fields: [courseDataId], references: [id])
 
   createdAt     DateTime       @default(now()) @map("created_at")
@@ -201,11 +207,10 @@ model Notification {
 }
 
 model Order {
-  id       String @id @default(uuid())
-  courseId String @map("course_id")
-  course   Course @relation(fields: [courseId], references: [id])
-  userId   String @map("user_id")
-  user     User   @relation(fields: [userId], references: [id])
+  id     String @id @default(uuid())
+  course Json[]
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
 
   paymentInfo Json     @map("payment_info")
   createdAt   DateTime @default(now()) @map("created_at")
@@ -219,8 +224,8 @@ model Category {
   title     String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  courseId  String   @map("course_id")
-  course    Course   @relation(fields: [courseId], references: [id])
+  Course    Course   @relation(fields: [courseId], references: [id])
+  courseId  String
 
   @@map("category")
 }

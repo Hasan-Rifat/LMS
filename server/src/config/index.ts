@@ -17,4 +17,8 @@ export default {
     activation_code: process.env.ACTIVATION_CODE,
     activation_expires_in: process.env.ACTIVATION_CODE_EXPIRES_IN,
   },
+  nodemailer: {
+    user: process.env.NODEMAILER_USER,
+    pass: process.env.NODEMAILER_PASS,
+  },
 };

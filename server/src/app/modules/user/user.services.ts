@@ -110,7 +110,7 @@ const login = async (
   };
 };
 
-const activateUser = async (token: string, code: number) => {
+const activateUser = async (token: string, code: number): Promise<User> => {
   const user = jwtHelpers.verifyToken(
     token,
     config.jwt.activation_code as Secret
@@ -136,7 +136,13 @@ const activateUser = async (token: string, code: number) => {
   return updatedUser;
 };
 
-const refresh = async (token: string) => {
+const refresh = async (
+  token: string
+): Promise<{
+  accessToken: string;
+  refreshToken: string;
+  user: JwtPayload;
+}> => {
   const user = jwtHelpers.verifyToken(
     token,
     config.jwt.refresh_secret as Secret
@@ -152,8 +158,15 @@ const refresh = async (token: string) => {
     config.jwt.expires_in as string
   );
 
+  const refreshToken = jwtHelpers.createToken(
+    { id: user.id, email: user.email, role: user.role },
+    config.jwt.refresh_secret as Secret,
+    config.jwt.refresh_expires_in as string
+  );
+
   return {
     accessToken,
+    refreshToken,
     user,
   };
 };

@@ -84,7 +84,7 @@ const refresh = catchAsync(async (req: Request, res: Response) => {
 
   const result = await UserService.refresh(refreshToken);
 
-  const { accessToken } = result;
+  const { accessToken, refreshToken: token } = result;
 
   const cookieOptions = {
     httpOnly: true,
@@ -92,7 +92,7 @@ const refresh = catchAsync(async (req: Request, res: Response) => {
   };
 
   res.cookie("accessToken", accessToken, cookieOptions);
-  res.cookie("refreshToken", refreshToken, cookieOptions);
+  res.cookie("refreshToken", token, cookieOptions);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
