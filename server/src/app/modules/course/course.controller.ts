@@ -7,7 +7,7 @@ import cloudinary from "../../../shared/cloudinary";
 const createCourse = catchAsync(async (req, res) => {
   // image upload
 
-  /* if (req.body.thumbnail) {
+  if (req.body.thumbnail) {
     const uploadResult = await cloudinary.uploader.upload(req.body.thumbnail, {
       folder: "/course",
     });
@@ -16,9 +16,7 @@ const createCourse = catchAsync(async (req, res) => {
       url: uploadResult.secure_url,
       public_id: uploadResult.public_id,
     };
-
-    console.log(req.body.thumbnail);
-  } */
+  }
   console.log(req.body);
   const result = await CourseService.createCourse(req.body);
   sendResponse(res, {

@@ -12,11 +12,10 @@ datasource db {
 
 // users
 model User {
-  id       String @id @default(uuid())
-  name     String
-  email    String @unique
-  password String
-
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  password      String
   role          Role           @default(user)
   isVerified    Boolean        @default(false) @map("is_verified")
   createdAt     DateTime       @default(now()) @map("created_at")
@@ -25,6 +24,8 @@ model User {
   notifications Notification[]
   questions     Question[]
   avatar        Avatar?
+  course        Course[]
+  review        Review[]
 
   @@map("user")
 }
@@ -44,12 +45,12 @@ model Avatar {
 
 // review
 model Review {
-  id       String @id @default(uuid())
-  userId   String @map("user_id")
-  rating   Int
-  courseId String @map("course_id")
-  course   Course @relation(fields: [courseId], references: [id])
-
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  user      User      @relation(fields: [userId], references: [id])
+  rating    Int
+  courseId  String    @map("course_id")
+  course    Course    @relation(fields: [courseId], references: [id])
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   comments  Comment[]
@@ -70,44 +71,48 @@ model Comment {
 }
 
 model Course {
-  id            String @id @default(uuid())
+  id            String  @id @default(uuid())
   name          String
   description   String
   price         Int
-  estimatePrice Int    @map("estimate_price")
-
+  estimatePrice Int     @map("estimate_price")
   level         String
-  demoUrl       String         @map("demo_url")
-  isPublished   Boolean        @default(false) @map("is_published")
-  courseRatings Int            @map("course_ratings")
+  demoUrl       String  @map("demo_url")
+  isPublished   Boolean @default(false) @map("is_published")
+  courseRatings Int     @map("course_ratings")
   purchase      Int
-  userId        String         @map("user_id")
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
-  benefit       Benefit[]
-  prerequisite  Prerequisite[]
-  CourseData    CourseData?
+  userId        String  @map("user_id")
+  user          User    @relation(fields: [userId], references: [id])
 
-  reviews    Review[]
-  categories Category[]
-  tags       Tags[]
-  thumbnail  Thumbnail?
+  thumbnail Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  review       Review[]
+  benefit      Benefit[]
+  prerequisite Prerequisite[]
+  courseData   CourseData[]
+  categories   Category[]
+  tags         Tags[]
 
   @@map("course")
 }
 
-model Thumbnail {
-  id        String  @id @default(uuid())
-  public_id String  @unique
-  url       String
-  courseId  String? @unique
-  course    Course? @relation(fields: [courseId], references: [id])
+model Category {
+  id        String   @id @default(uuid())
+  title     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  courseId  String   @map("course_id")
+  couse     Course   @relation(fields: [courseId], references: [id])
+
+  @@map("category")
 }
 
 model Tags {
   id        String   @id @default(uuid())
   tag       String
-  courseId  String   @unique @map("course_id")
+  courseId  String   @map("course_id")
   course    Course   @relation(fields: [courseId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -116,11 +121,10 @@ model Tags {
 }
 
 model Benefit {
-  id       String @id @default(uuid())
-  benefit  String
-  courseId String @unique @map("course_id")
-  course   Course @relation(fields: [courseId], references: [id])
-
+  id        String   @id @default(uuid())
+  benefit   String
+  courseId  String   @map("course_id")
+  course    Course   @relation(fields: [courseId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -128,13 +132,12 @@ model Benefit {
 }
 
 model Prerequisite {
-  id           String @id @default(uuid())
+  id           String   @id @default(uuid())
   prerequisite String
-  courseId     String @unique @map("course_id")
-  course       Course @relation(fields: [courseId], references: [id])
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  courseId     String   @map("course_id")
+  course       Course   @relation(fields: [courseId], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@map("prerequisite")
 }
@@ -149,7 +152,7 @@ model CourseData {
   videoLength    String     @map("video_length")
   videoPlayer    String     @map("video_player")
   suggestion     String
-  courseId       String     @unique @map("course_id")
+  courseId       String     @map("course_id")
   course         Course     @relation(fields: [courseId], references: [id])
   createdAt      DateTime   @default(now()) @map("created_at")
   updatedAt      DateTime   @updatedAt @map("updated_at")
@@ -175,14 +178,14 @@ model Links {
 model Question {
   id String @id @default(uuid())
 
-  userId       String     @map("user_id")
-  user         User       @relation(fields: [userId], references: [id])
-  courseDataId String     @unique @map("course_data_id")
-  courseData   CourseData @relation(fields: [courseDataId], references: [id])
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
 
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
   questionItems QuestionItem[]
+  CourseData    CourseData?    @relation(fields: [courseDataId], references: [id])
+  courseDataId  String?
 
   @@map("question")
 }
@@ -217,17 +220,6 @@ model Order {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("order")
-}
-
-model Category {
-  id        String   @id @default(uuid())
-  title     String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  Course    Course   @relation(fields: [courseId], references: [id])
-  courseId  String
-
-  @@map("category")
 }
 
 // faq
