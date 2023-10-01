@@ -96,6 +96,7 @@ model Course {
   categories   Category[]
   tags         Tags[]
   question     Question[]
+  order        Order[]
 
   @@map("course")
 }
@@ -208,10 +209,11 @@ model Notification {
 }
 
 model Order {
-  id     String @id @default(uuid())
-  course Json[]
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
+  id       String @id @default(uuid())
+  couserId String @map("course_id")
+  course   Course @relation(fields: [couserId], references: [id])
+  userId   String @map("user_id")
+  user     User   @relation(fields: [userId], references: [id])
 
   paymentInfo Json     @map("payment_info")
   createdAt   DateTime @default(now()) @map("created_at")

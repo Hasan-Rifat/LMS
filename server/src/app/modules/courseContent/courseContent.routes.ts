@@ -6,16 +6,7 @@ import { ENUM_USER_ROLE } from "../../../constants/user";
 const router = express.Router();
 
 // user
-router.get(
-  "/get-course/:id"
-  /*
-don't show
-- courseData.video
-- courseData.suggestion
-- courseData.question
-- courseData.links
-*/
-);
+router.get("/get-course/:id", CourseContentController.getCourseForUser);
 
 router.post(
   "/create-content",
@@ -26,7 +17,7 @@ router.post(
 );
 
 router.post(
-  "/get-course-content/:id",
+  "/buy-a-course/:id",
   auth(ENUM_USER_ROLE.USER),
   /*
     after user purchased course then user can access course content

@@ -3,10 +3,20 @@ import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { CourseContentService } from "./courseContent.services";
 import { JwtPayload } from "jsonwebtoken";
-import cloudinary from "../../../shared/cloudinary";
 
 const getCourse = catchAsync(async (req, res) => {
   const result = await CourseContentService.getCourse(req.params.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Get course by id",
+    data: result,
+    success: true,
+  });
+});
+
+const getCourseForUser = catchAsync(async (req, res) => {
+  const result = await CourseContentService.getCourseForUser(req.params.id);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -31,7 +41,8 @@ const buyACourse = catchAsync(async (req, res) => {
   const user = req?.user;
   const result = await CourseContentService.buyACourse(
     req.params.id,
-    user as JwtPayload
+    user as JwtPayload,
+    req.body
   );
 
   sendResponse(res, {
@@ -42,4 +53,9 @@ const buyACourse = catchAsync(async (req, res) => {
   });
 });
 
-export const CourseContentController = { buyACourse, getCourse, createContent };
+export const CourseContentController = {
+  buyACourse,
+  getCourse,
+  createContent,
+  getCourseForUser,
+};
