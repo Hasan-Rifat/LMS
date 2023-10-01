@@ -11,13 +11,10 @@ const createCourse = catchAsync(async (req, res) => {
     const uploadResult = await cloudinary.uploader.upload(req.body.thumbnail, {
       folder: "/course",
     });
-
-    req.body.thumbnail = {
-      url: uploadResult.secure_url,
-      public_id: uploadResult.public_id,
-    };
+    req.body.thumbnail = uploadResult.secure_url;
+    req.body.public_id = uploadResult.public_id;
   }
-  console.log(req.body);
+
   const result = await CourseService.createCourse(req.body);
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -50,6 +47,19 @@ const getCourseById = catchAsync(async (req, res) => {
 });
 
 const updateCourse = catchAsync(async (req, res) => {
+  if (req.body.thumbnail) {
+    // delete old image
+    await cloudinary.uploader.destroy(req.body.thumbnail.public_id);
+
+    const uploadResult = await cloudinary.uploader.upload(req.body.thumbnail, {
+      folder: "/course",
+    });
+
+    req.body.thumbnail = {
+      url: uploadResult.secure_url,
+      public_id: uploadResult.public_id,
+    };
+  }
   const result = await CourseService.updateCourse(req.params.id, req.body);
 
   sendResponse(res, {

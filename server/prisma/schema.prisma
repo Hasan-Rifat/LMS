@@ -84,7 +84,8 @@ model Course {
   userId        String  @map("user_id")
   user          User    @relation(fields: [userId], references: [id])
 
-  thumbnail Json
+  thumbnail String
+  public_id String   @unique
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -94,6 +95,7 @@ model Course {
   courseData   CourseData[]
   categories   Category[]
   tags         Tags[]
+  question     Question[]
 
   @@map("course")
 }
@@ -143,21 +145,17 @@ model Prerequisite {
 }
 
 model CourseData {
-  id             String     @id @default(uuid())
-  videoUrl       String     @map("video_url")
-  videoThumbnail String     @map("video_thumbnail")
-  title          String
-  videoSection   Json       @map("video_section")
-  description    String
-  videoLength    String     @map("video_length")
-  videoPlayer    String     @map("video_player")
-  suggestion     String
-  courseId       String     @map("course_id")
-  course         Course     @relation(fields: [courseId], references: [id])
-  createdAt      DateTime   @default(now()) @map("created_at")
-  updatedAt      DateTime   @updatedAt @map("updated_at")
-  links          Links[]
-  questions      Question[]
+  id           String   @id @default(uuid())
+  videoUrl     String   @map("video_url")
+  title        String
+  description  String
+  videoSection String   @map("video_section")
+  videoLength  Int      @map("video_length")
+  courseId     String   @map("course_id")
+  course       Course   @relation(fields: [courseId], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  links        Links[]
 
   @@map("course_data")
 }
@@ -184,8 +182,8 @@ model Question {
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
   questionItems QuestionItem[]
-  CourseData    CourseData?    @relation(fields: [courseDataId], references: [id])
-  courseDataId  String?
+  courseId      String         @map("course_id")
+  course        Course         @relation(fields: [courseId], references: [id])
 
   @@map("question")
 }

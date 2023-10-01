@@ -61,7 +61,8 @@ CREATE TABLE "course" (
     "course_ratings" INTEGER NOT NULL,
     "purchase" INTEGER NOT NULL,
     "user_id" TEXT NOT NULL,
-    "thumbnail" JSONB NOT NULL,
+    "thumbnail" TEXT NOT NULL,
+    "public_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -116,13 +117,10 @@ CREATE TABLE "prerequisite" (
 CREATE TABLE "course_data" (
     "id" TEXT NOT NULL,
     "video_url" TEXT NOT NULL,
-    "video_thumbnail" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "video_section" JSONB NOT NULL,
     "description" TEXT NOT NULL,
-    "video_length" TEXT NOT NULL,
-    "video_player" TEXT NOT NULL,
-    "suggestion" TEXT NOT NULL,
+    "video_section" TEXT NOT NULL,
+    "video_length" INTEGER NOT NULL,
     "course_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -148,7 +146,7 @@ CREATE TABLE "question" (
     "user_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
-    "courseDataId" TEXT,
+    "course_id" TEXT NOT NULL,
 
     CONSTRAINT "question_pkey" PRIMARY KEY ("id")
 );
@@ -215,6 +213,9 @@ CREATE UNIQUE INDEX "Avatar_public_id_key" ON "Avatar"("public_id");
 -- CreateIndex
 CREATE UNIQUE INDEX "Avatar_userId_key" ON "Avatar"("userId");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "course_public_id_key" ON "course"("public_id");
+
 -- AddForeignKey
 ALTER TABLE "Avatar" ADD CONSTRAINT "Avatar_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -252,7 +253,7 @@ ALTER TABLE "links" ADD CONSTRAINT "links_course_data_id_fkey" FOREIGN KEY ("cou
 ALTER TABLE "question" ADD CONSTRAINT "question_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "question" ADD CONSTRAINT "question_courseDataId_fkey" FOREIGN KEY ("courseDataId") REFERENCES "course_data"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "question" ADD CONSTRAINT "question_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "QuestionItem" ADD CONSTRAINT "QuestionItem_question_id_fkey" FOREIGN KEY ("question_id") REFERENCES "question"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

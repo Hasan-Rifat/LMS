@@ -22,6 +22,11 @@ const registration = async (
     where: {
       email: data.email,
     },
+    include: {
+      course: true,
+      avatar: true,
+      orders: true,
+    },
   });
 
   if (userExists) {
@@ -176,6 +181,11 @@ const getProfile = async (id: string) => {
     where: {
       id,
     },
+    include: {
+      course: true,
+      avatar: true,
+      orders: true,
+    },
   });
 
   if (!user) {
@@ -242,6 +252,11 @@ const getByIdFromDB = async (id: string): Promise<User | null> => {
     where: {
       id,
     },
+    include: {
+      course: true,
+      avatar: true,
+      orders: true,
+    },
   });
 };
 
@@ -252,6 +267,11 @@ const updateOneInDB = async (id: string, data: User): Promise<User> => {
       id,
     },
     data,
+    include: {
+      course: true,
+      avatar: true,
+      orders: true,
+    },
   });
 };
 
@@ -260,6 +280,11 @@ const deleteByIdFromDB = async (id: string): Promise<User> => {
   return prisma.user.delete({
     where: {
       id,
+    },
+    include: {
+      course: true,
+      avatar: true,
+      orders: true,
     },
   });
 };

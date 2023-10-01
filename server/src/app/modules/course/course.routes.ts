@@ -11,11 +11,22 @@ router.post(
 
 router.get(
   "/get-all-courses",
+  /* for all users */
   CourseController.getAllCourse
   /* 
 get all course without purchased
 */
 );
+
+router.get(
+  "/get-course/:id",
+  /* for all users */
+  CourseController.getCourseById
+  /* 
+get all course without purchased
+*/
+);
+
 router.patch("/update-course/:id", CourseController.updateCourse);
 
 // delete course
