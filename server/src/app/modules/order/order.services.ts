@@ -1,5 +1,7 @@
 import { Order } from "@prisma/client";
 import prisma from "../../../shared/prisma";
+import ApiError from "../../../errors/ApiError";
+import httpStatus from "http-status";
 
 const getOrderById = async (orderId: string): Promise<Order | null> => {
   const order = await prisma.order.findUnique({
@@ -12,6 +14,8 @@ const getOrderById = async (orderId: string): Promise<Order | null> => {
     },
   });
 
+  if (!order) throw new ApiError(httpStatus.NOT_FOUND, "Order not found");
+
   return order;
 };
 
@@ -22,6 +26,8 @@ const getOrders = async (): Promise<Order[]> => {
       course: true,
     },
   });
+
+  if (!orders) throw new ApiError(httpStatus.NOT_FOUND, "Orders not found");
 
   return orders;
 };
@@ -41,6 +47,9 @@ const updateOrder = async (orderId: string, order: Order): Promise<Order> => {
     },
   });
 
+  if (!updatedOrder)
+    throw new ApiError(httpStatus.NOT_FOUND, "Order not found");
+
   return updatedOrder;
 };
 
@@ -54,6 +63,9 @@ const deleteOrder = async (orderId: string): Promise<Order> => {
       course: true,
     },
   });
+
+  if (!deletedOrder)
+    throw new ApiError(httpStatus.NOT_FOUND, "Order not found");
 
   return deletedOrder;
 };

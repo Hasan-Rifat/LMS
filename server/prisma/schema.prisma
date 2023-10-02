@@ -61,6 +61,8 @@ model Review {
 model Comment {
   id       String @id @default(uuid())
   replay   String @map("user_id")
+  courseId String @map("course_id")
+  course   Course @relation(fields: [courseId], references: [id])
   reviewId String @map("review_id")
   review   Review @relation(fields: [reviewId], references: [id])
 
@@ -71,43 +73,45 @@ model Comment {
 }
 
 model Course {
-  id            String  @id @default(uuid())
+  id            String   @id @default(uuid())
   name          String
   description   String
   price         Int
-  estimatePrice Int     @map("estimate_price")
+  estimatePrice Int      @map("estimate_price")
   level         String
-  demoUrl       String  @map("demo_url")
-  isPublished   Boolean @default(false) @map("is_published")
-  courseRatings Int     @map("course_ratings")
+  demoUrl       String   @map("demo_url")
+  isPublished   Boolean  @default(false) @map("is_published")
+  courseRatings Int      @map("course_ratings")
   purchase      Int
-  userId        String  @map("user_id")
-  user          User    @relation(fields: [userId], references: [id])
-
-  thumbnail String
-  public_id String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  userId        String   @map("user_id")
+  user          User     @relation(fields: [userId], references: [id])
+  tagId         String   @map("tag_id")
+  tag           Tags     @relation(fields: [tagId], references: [id])
+  categoryId    String   @map("category_id")
+  category      Category @relation(fields: [categoryId], references: [id])
+  thumbnail     String
+  public_id     String   @unique
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   review       Review[]
   benefit      Benefit[]
   prerequisite Prerequisite[]
   courseData   CourseData[]
-  categories   Category[]
-  tags         Tags[]
-  question     Question[]
-  order        Order[]
+
+  order   Order[]
+  comment Comment[]
 
   @@map("course")
 }
 
 model Category {
-  id        String   @id @default(uuid())
-  title     String
+  id    String @id @default(uuid())
+  title String
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  courseId  String   @map("course_id")
-  couse     Course   @relation(fields: [courseId], references: [id])
+  course    Course[]
 
   @@map("category")
 }
@@ -115,10 +119,9 @@ model Category {
 model Tags {
   id        String   @id @default(uuid())
   tag       String
-  courseId  String   @map("course_id")
-  course    Course   @relation(fields: [courseId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  course    Course[]
 
   @@map("tag")
 }
@@ -146,17 +149,18 @@ model Prerequisite {
 }
 
 model CourseData {
-  id           String   @id @default(uuid())
-  videoUrl     String   @map("video_url")
+  id           String     @id @default(uuid())
+  videoUrl     String     @map("video_url")
   title        String
   description  String
-  videoSection String   @map("video_section")
-  videoLength  Int      @map("video_length")
-  courseId     String   @map("course_id")
-  course       Course   @relation(fields: [courseId], references: [id])
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  videoSection String     @map("video_section")
+  videoLength  Int        @map("video_length")
+  courseId     String     @map("course_id")
+  course       Course     @relation(fields: [courseId], references: [id])
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
   links        Links[]
+  question     Question[]
 
   @@map("course_data")
 }
@@ -177,23 +181,15 @@ model Links {
 model Question {
   id String @id @default(uuid())
 
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
-
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
-  questionItems QuestionItem[]
-  courseId      String         @map("course_id")
-  course        Course         @relation(fields: [courseId], references: [id])
+  userId      String     @map("user_id")
+  user        User       @relation(fields: [userId], references: [id])
+  question    String
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  couseDataId String     @map("course_data_id")
+  courseData  CourseData @relation(fields: [couseDataId], references: [id])
 
   @@map("question")
-}
-
-model QuestionItem {
-  id         String   @id @default(uuid())
-  questions  String   @map("questions")
-  questionId String   @map("question_id")
-  question   Question @relation(fields: [questionId], references: [id])
 }
 
 model Notification {
@@ -224,23 +220,11 @@ model Order {
 
 // faq
 model Faq {
-  id String @id @default(uuid())
-
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  faqItems  FaqItem[]
-
-  @@map("faq")
-}
-
-model FaqItem {
   id        String   @id @default(uuid())
   question  String
   answer    String
-  faqId     String   @map("faq_id")
-  faq       Faq      @relation(fields: [faqId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("faq_item")
+  @@map("faq")
 }

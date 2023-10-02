@@ -1,19 +1,24 @@
 import { Course } from "@prisma/client";
 import prisma from "../../../shared/prisma";
+import ApiError from "../../../errors/ApiError";
+import httpStatus from "http-status";
+import cloudinary from "../../../shared/cloudinary";
 
 const createCourse = async (data: Course): Promise<Course> => {
   const result = await prisma.course.create({
     data,
     include: {
-      courseData: true,
       benefit: true,
-      categories: true,
+      category: true,
+      comment: true,
       prerequisite: true,
-      question: true,
+      courseData: true,
       review: true,
-      tags: true,
+      tag: true,
     },
   });
+
+  if (!result) throw new ApiError(httpStatus.NOT_FOUND, "Course not created");
 
   return result;
 };
@@ -21,15 +26,17 @@ const createCourse = async (data: Course): Promise<Course> => {
 const getAllCourse = async (): Promise<Course[]> => {
   const result = await prisma.course.findMany({
     include: {
-      courseData: true,
       benefit: true,
-      categories: true,
+      category: true,
+      comment: true,
       prerequisite: true,
-      question: true,
+      courseData: true,
       review: true,
-      tags: true,
+      tag: true,
     },
   });
+
+  if (!result) throw new ApiError(httpStatus.NOT_FOUND, "Courses not found");
 
   return result;
 };
@@ -40,15 +47,17 @@ const getCourseById = async (id: string): Promise<Course | null> => {
       id,
     },
     include: {
-      courseData: true,
       benefit: true,
-      categories: true,
+      category: true,
+      comment: true,
       prerequisite: true,
-      question: true,
+      courseData: true,
       review: true,
-      tags: true,
+      tag: true,
     },
   });
+
+  if (!result) throw new ApiError(httpStatus.NOT_FOUND, "Course not found");
 
   return result;
 };
@@ -60,32 +69,44 @@ const updateCourse = async (id: string, data: Course): Promise<Course> => {
     },
     data,
     include: {
-      courseData: true,
       benefit: true,
-      categories: true,
+      category: true,
+      comment: true,
       prerequisite: true,
-      question: true,
+      courseData: true,
       review: true,
-      tags: true,
+      tag: true,
     },
   });
+
+  if (!result) throw new ApiError(httpStatus.NOT_FOUND, "Course not found");
 
   return result;
 };
 
 const deleteCourse = async (id: string): Promise<Course> => {
+  const course = await prisma.course.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!course) throw new ApiError(httpStatus.NOT_FOUND, "Course not found");
+
+  await cloudinary.uploader.destroy(course.public_id);
+
   const result = await prisma.course.delete({
     where: {
       id,
     },
     include: {
-      courseData: true,
       benefit: true,
-      categories: true,
+      category: true,
+      comment: true,
       prerequisite: true,
-      question: true,
+      courseData: true,
       review: true,
-      tags: true,
+      tag: true,
     },
   });
 

@@ -248,7 +248,7 @@ const getAllFromDB = async (): Promise<User[]> => {
 
 // get user by id
 const getByIdFromDB = async (id: string): Promise<User | null> => {
-  return prisma.user.findUnique({
+  const data = prisma.user.findUnique({
     where: {
       id,
     },
@@ -258,11 +258,17 @@ const getByIdFromDB = async (id: string): Promise<User | null> => {
       orders: true,
     },
   });
+
+  if (!data) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  return data;
 };
 
 // update user
 const updateOneInDB = async (id: string, data: User): Promise<User> => {
-  return prisma.user.update({
+  const newData = prisma.user.update({
     where: {
       id,
     },
@@ -273,11 +279,17 @@ const updateOneInDB = async (id: string, data: User): Promise<User> => {
       orders: true,
     },
   });
+
+  if (!newData) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  return newData;
 };
 
 // delete user
 const deleteByIdFromDB = async (id: string): Promise<User> => {
-  return prisma.user.delete({
+  const data = prisma.user.delete({
     where: {
       id,
     },
@@ -287,6 +299,12 @@ const deleteByIdFromDB = async (id: string): Promise<User> => {
       orders: true,
     },
   });
+
+  if (!data) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  return data;
 };
 
 export const UserService = {

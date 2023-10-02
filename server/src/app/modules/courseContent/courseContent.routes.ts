@@ -6,7 +6,6 @@ import { ENUM_USER_ROLE } from "../../../constants/user";
 const router = express.Router();
 
 // user
-router.get("/get-course/:id", CourseContentController.getCourseForUser);
 
 router.post(
   "/create-content",
@@ -16,6 +15,8 @@ router.post(
 */ CourseContentController.createContent
 );
 
+router.get("/get-course/:id", CourseContentController.getCourseForUser);
+
 router.post(
   "/buy-a-course/:id",
   auth(ENUM_USER_ROLE.USER),
@@ -24,4 +25,15 @@ router.post(
 */ CourseContentController.buyACourse
 );
 
+router.patch(
+  "/update-course/:id",
+  auth(ENUM_USER_ROLE.USER),
+  CourseContentController.updateCourse
+);
+
+router.delete(
+  "/delete-course/:id",
+  auth(ENUM_USER_ROLE.USER),
+  CourseContentController.deleteCourse
+);
 export const CourseContentRoutes = router;
