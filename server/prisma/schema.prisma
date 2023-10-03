@@ -12,20 +12,23 @@ datasource db {
 
 // users
 model User {
-  id            String         @id @default(uuid())
-  name          String
-  email         String         @unique
-  password      String
-  role          Role           @default(user)
-  isVerified    Boolean        @default(false) @map("is_verified")
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
-  orders        Order[]
-  notifications Notification[]
-  questions     Question[]
-  avatar        Avatar?
-  course        Course[]
-  review        Review[]
+  id                   String                 @id @default(uuid())
+  name                 String
+  email                String                 @unique
+  password             String
+  role                 Role                   @default(user)
+  isVerified           Boolean                @default(false) @map("is_verified")
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updatedAt            DateTime               @updatedAt @map("updated_at")
+  orders               Order[]
+  notifications        Notification[]
+  questions            Question[]
+  avatar               Avatar?
+  course               Course[]
+  review               Review[]
+  questionReplay       QuestionReplay[]
+  commentReplayForUser CommentReplayForUser[]
+  comment              Comment[]
 
   @@map("user")
 }
@@ -59,17 +62,30 @@ model Review {
 }
 
 model Comment {
-  id       String @id @default(uuid())
-  replay   String @map("user_id")
-  courseId String @map("course_id")
-  course   Course @relation(fields: [courseId], references: [id])
-  reviewId String @map("review_id")
-  review   Review @relation(fields: [reviewId], references: [id])
+  id                   String                 @id @default(uuid())
+  comment              String
+  courseId             String
+  course               Course                 @relation(fields: [courseId], references: [id])
+  userId               String                 @map("user_id")
+  user                 User                   @relation(fields: [userId], references: [id])
+  reviewId             String
+  review               Review                 @relation(fields: [reviewId], references: [id])
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  commentReplayForUser CommentReplayForUser[]
 
+  @@map("comment")
+}
+
+model CommentReplayForUser {
+  id        String   @id @default(uuid())
+  reply     String
+  commentId String   @map("comment_id")
+  comment   Comment  @relation(fields: [commentId], references: [id])
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("comments")
 }
 
 model Course {
@@ -179,17 +195,26 @@ model Links {
 }
 
 model Question {
-  id String @id @default(uuid())
-
-  userId      String     @map("user_id")
-  user        User       @relation(fields: [userId], references: [id])
-  question    String
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
-  couseDataId String     @map("course_data_id")
-  courseData  CourseData @relation(fields: [couseDataId], references: [id])
+  id             String           @id @default(uuid())
+  userId         String           @map("user_id")
+  user           User             @relation(fields: [userId], references: [id])
+  question       String
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  courseDataId   String           @map("course_data_id")
+  courseData     CourseData       @relation(fields: [courseDataId], references: [id])
+  questionReplay QuestionReplay[]
 
   @@map("question")
+}
+
+model QuestionReplay {
+  id         String   @id @default(uuid())
+  reply      String
+  questionId String   @map("comment_id")
+  question   Question @relation(fields: [questionId], references: [id])
+  userId     String   @map("user_id")
+  user       User     @relation(fields: [userId], references: [id])
 }
 
 model Notification {

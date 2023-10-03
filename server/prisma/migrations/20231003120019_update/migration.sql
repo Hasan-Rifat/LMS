@@ -38,13 +38,25 @@ CREATE TABLE "review" (
 );
 
 -- CreateTable
-CREATE TABLE "comments" (
+CREATE TABLE "comment_replay" (
     "id" TEXT NOT NULL,
-    "user_id" TEXT NOT NULL,
-    "course_id" TEXT NOT NULL,
-    "review_id" TEXT NOT NULL,
+    "reply" TEXT NOT NULL,
+    "commentId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "comment_replay_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "comments" (
+    "id" TEXT NOT NULL,
+    "comment" TEXT NOT NULL,
+    "courseId" TEXT NOT NULL,
+    "reviewId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "comments_pkey" PRIMARY KEY ("id")
 );
@@ -145,6 +157,7 @@ CREATE TABLE "links" (
 CREATE TABLE "question" (
     "id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
+    "question" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "course_data_id" TEXT NOT NULL,
@@ -153,12 +166,13 @@ CREATE TABLE "question" (
 );
 
 -- CreateTable
-CREATE TABLE "QuestionItem" (
+CREATE TABLE "QuestionReplay" (
     "id" TEXT NOT NULL,
-    "questions" TEXT NOT NULL,
-    "question_id" TEXT NOT NULL,
+    "reply" TEXT NOT NULL,
+    "comment_id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
 
-    CONSTRAINT "QuestionItem_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "QuestionReplay_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -187,22 +201,12 @@ CREATE TABLE "order" (
 -- CreateTable
 CREATE TABLE "faq" (
     "id" TEXT NOT NULL,
+    "question" TEXT NOT NULL,
+    "answer" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "faq_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "faq_item" (
-    "id" TEXT NOT NULL,
-    "question" TEXT NOT NULL,
-    "answer" TEXT NOT NULL,
-    "faq_id" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "faq_item_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -227,10 +231,16 @@ ALTER TABLE "review" ADD CONSTRAINT "review_user_id_fkey" FOREIGN KEY ("user_id"
 ALTER TABLE "review" ADD CONSTRAINT "review_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "comments" ADD CONSTRAINT "comments_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "comment_replay" ADD CONSTRAINT "comment_replay_commentId_fkey" FOREIGN KEY ("commentId") REFERENCES "comments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "comments" ADD CONSTRAINT "comments_review_id_fkey" FOREIGN KEY ("review_id") REFERENCES "review"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "comment_replay" ADD CONSTRAINT "comment_replay_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "comments" ADD CONSTRAINT "comments_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "comments" ADD CONSTRAINT "comments_reviewId_fkey" FOREIGN KEY ("reviewId") REFERENCES "review"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "course" ADD CONSTRAINT "course_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -260,7 +270,10 @@ ALTER TABLE "question" ADD CONSTRAINT "question_user_id_fkey" FOREIGN KEY ("user
 ALTER TABLE "question" ADD CONSTRAINT "question_course_data_id_fkey" FOREIGN KEY ("course_data_id") REFERENCES "course_data"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "QuestionItem" ADD CONSTRAINT "QuestionItem_question_id_fkey" FOREIGN KEY ("question_id") REFERENCES "question"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "QuestionReplay" ADD CONSTRAINT "QuestionReplay_comment_id_fkey" FOREIGN KEY ("comment_id") REFERENCES "question"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "QuestionReplay" ADD CONSTRAINT "QuestionReplay_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "notification" ADD CONSTRAINT "notification_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -270,6 +283,3 @@ ALTER TABLE "order" ADD CONSTRAINT "order_course_id_fkey" FOREIGN KEY ("course_i
 
 -- AddForeignKey
 ALTER TABLE "order" ADD CONSTRAINT "order_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "faq_item" ADD CONSTRAINT "faq_item_faq_id_fkey" FOREIGN KEY ("faq_id") REFERENCES "faq"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -60,10 +60,22 @@ const deleteComment = catchAsync(async (req, res) => {
   });
 });
 
+const replayComment = catchAsync(async (req, res) => {
+  const result = await CommentService.replayComments(req.params.id, req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Comment replay",
+    data: result,
+    success: true,
+  });
+});
+
 export const CommentController = {
   getComment,
   getCommentById,
   createComment,
   updateComment,
   deleteComment,
+  replayComment,
 };

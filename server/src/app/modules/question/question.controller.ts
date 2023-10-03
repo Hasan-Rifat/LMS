@@ -60,10 +60,22 @@ const deleteQuestion = catchAsync(async (req, res) => {
   });
 });
 
+const answerQuestion = catchAsync(async (req, res) => {
+  const result = await QuestionService.answerQuestion(req.params.id, req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Question answered",
+    data: result,
+    success: true,
+  });
+});
+
 export const QuestionController = {
   getQuestion,
   getQuestionById,
   createQuestion,
   updateQuestion,
   deleteQuestion,
+  answerQuestion,
 };

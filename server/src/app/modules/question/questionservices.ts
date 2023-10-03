@@ -1,10 +1,14 @@
 import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiError";
 import httpStatus from "http-status";
-import { Question } from "@prisma/client";
+import { Question, QuestionReplay } from "@prisma/client";
 
 const getQuestion = async (): Promise<Question[]> => {
-  const data = prisma.question.findMany();
+  const data = prisma.question.findMany({
+    include: {
+      questionReplay: true,
+    },
+  });
   if (!data) throw new ApiError(httpStatus.NOT_FOUND, "Question not found");
 
   return data;
@@ -14,6 +18,9 @@ const getQuestionById = async (id: string): Promise<Question | null> => {
   const data = prisma.question.findUnique({
     where: {
       id,
+    },
+    include: {
+      questionReplay: true,
     },
   });
 
@@ -25,6 +32,9 @@ const getQuestionById = async (id: string): Promise<Question | null> => {
 const createQuestion = async (data: Question): Promise<Question> => {
   const newData = prisma.question.create({
     data,
+    include: {
+      questionReplay: true,
+    },
   });
 
   if (!newData) throw new ApiError(httpStatus.NOT_FOUND, "Question not found");
@@ -40,6 +50,9 @@ const updateQuestion = async (
     where: {
       id,
     },
+    include: {
+      questionReplay: true,
+    },
     data,
   });
 
@@ -53,6 +66,9 @@ const deleteQuestion = async (id: string): Promise<Question> => {
     where: {
       id,
     },
+    include: {
+      questionReplay: true,
+    },
   });
 
   if (!result) throw new ApiError(httpStatus.NOT_FOUND, "Question not found");
@@ -60,7 +76,29 @@ const deleteQuestion = async (id: string): Promise<Question> => {
   return result;
 };
 
+const answerQuestion = async (
+  id: string,
+  data: QuestionReplay
+): Promise<QuestionReplay> => {
+  const question = prisma.question.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!question) throw new ApiError(httpStatus.NOT_FOUND, "Question not found");
+
+  const newData = prisma.questionReplay.create({
+    data,
+  });
+
+  if (!newData) throw new ApiError(httpStatus.NOT_FOUND, "Question not found");
+
+  return newData;
+};
+
 export const QuestionService = {
+  answerQuestion,
   getQuestion,
   getQuestionById,
   createQuestion,
